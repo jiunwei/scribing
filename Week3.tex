@@ -1,0 +1,257 @@
+%
+% This is the LaTeX template file for lecture notes for CS5234,
+% Algorithms at Scale.  When preparing 
+% LaTeX notes for this class, please use this template.
+%
+% To familiarize yourself with this template, the body contains
+% some examples of its use.  Look them over.  Then you can
+% run LaTeX on this file.  After you have LaTeXed this file then
+% you can look over the result either by printing it out with
+% dvips or using xdvi.
+%
+% This template is based on the template at https://inst.eecs.berkeley.edu/~cs294-8/sp03/Materials/scribe.tex.
+
+\documentclass[twoside]{article}
+\usepackage{graphics}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\setlength{\oddsidemargin}{0.25 in}
+\setlength{\evensidemargin}{-0.25 in}
+\setlength{\topmargin}{-0.6 in}
+\setlength{\textwidth}{6.5 in}
+\setlength{\textheight}{8.5 in}
+\setlength{\headsep}{0.75 in}
+\setlength{\parindent}{0 in}
+\setlength{\parskip}{0.1 in}
+
+%
+% The following commands set up the lecnum (lecture number)
+% counter and make various numbering schemes work relative
+% to the lecture number.
+%
+\newcounter{lecnum}
+\renewcommand{\thepage}{\thelecnum-\arabic{page}}
+\renewcommand{\thesection}{\thelecnum.\arabic{section}}
+\renewcommand{\theequation}{\thelecnum.\arabic{equation}}
+\renewcommand{\thefigure}{\thelecnum.\arabic{figure}}
+\renewcommand{\thetable}{\thelecnum.\arabic{table}}
+
+%
+% The following macro is used to generate the header.
+%
+\newcommand{\lecture}[4]{
+   \pagestyle{myheadings}
+   \thispagestyle{plain}
+   \newpage
+   \setcounter{lecnum}{#1}
+   \setcounter{page}{1}
+   \noindent
+   \begin{center}
+   \framebox{
+      \vbox{\vspace{2mm}
+    \hbox to 6.28in { {\bf CS 5234 Algorithms at Scale
+                        \hfill \today} }
+       \vspace{4mm}
+       \hbox to 6.28in { {\Large \hfill Lecture #1: #2  \hfill} }
+       \vspace{2mm}
+       \hbox to 6.28in { {\it Lecturer: #3 \hfill Scribe: #4} }
+      \vspace{2mm}}
+   }
+   \end{center}
+   \markboth{Lecture #1: #2}{Lecture #1: #2}
+   {\bf Disclaimer}: {\it These notes have not been subjected to the
+   usual scrutiny reserved for formal publications.  They may be distributed
+   outside this class only with the permission of the Instructor.}
+   \vspace*{4mm}
+}
+
+%
+% Convention for citations is authors' initials followed by the year.
+% For example, to cite a paper by Leighton and Maggs you would type
+% \cite{LM89}, and to cite a paper by Strassen you would type \cite{S69}.
+% (To avoid bibliography problems, for now we redefine the \cite command.)
+% Also commands that create a suitable format for the reference list.
+\renewcommand{\cite}[1]{[#1]}
+\def\beginrefs{\begin{list}%
+        {[\arabic{equation}]}{\usecounter{equation}
+         \setlength{\leftmargin}{2.0truecm}\setlength{\labelsep}{0.4truecm}%
+         \setlength{\labelwidth}{1.6truecm}}}
+\def\endrefs{\end{list}}
+\def\bibentry#1{\item[\hbox{[#1]}]}
+
+%Use this command for a figure; it puts a figure in wherever you want it.
+%usage: \fig{NUMBER}{SPACE-IN-INCHES}{CAPTION}
+\newcommand{\fig}[3]{
+			\vspace{#2}
+			\begin{center}
+			Figure \thelecnum.#1:~#3
+			\end{center}
+	}
+% Use these for theorems, lemmas, proofs, etc.
+\newtheorem{theorem}{Theorem}[lecnum]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{claim}[theorem]{Claim}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}[theorem]{Definition}
+\newenvironment{proof}{{\bf Proof:}}{\hfill\rule{2mm}{2mm}}
+
+% **** IF YOU WANT TO DEFINE ADDITIONAL MACROS FOR YOURSELF, PUT THEM HERE:
+
+\begin{document}
+%FILL IN THE RIGHT INFO.
+%\lecture{**LECTURE-NUMBER**}{**DATE**}{**LECTURER**}{**SCRIBE**}
+\lecture{3}{Markov Chain Monte Carlo}{Arnab Bhattacharyya}{Chia Jiun Wei}
+%\footnotetext{These notes are partially based on those of Nigel Mansell.}
+
+% **** YOUR NOTES GO HERE:
+
+
+\section{Overview}
+
+Recall that in the last lecture, we saw sampling applied to:
+
+\begin{enumerate}
+   \item Approximate Counting
+   \item Bayesian Inference
+\end{enumerate}
+
+For approximate counting, we wanted to uniformly sample from solutions to a computational problem (e.g., solutions to a Knapsack Problem).
+
+For Bayesian inference, the posterior distribution often has a denominator that is difficult to calculate, so we wanted to sample from a distribution $P$ such that:
+
+$$
+P(x) = \frac{f(x)}{Z}
+$$
+
+where $Z$ is unknown but $f(x)$ is known.
+
+Both can be attacked by Markov Chain Monte Carlo (MCMC).
+
+$P$: Target distribution over $\Omega$.
+
+The idea is that we start from a point that is known state $X_0$ in $\Omega$ and make random transitions to $X_2, X_3$ and so on. After each transition, 
+
+We want that for large $t$, $P[X_t = x] \approx P(x)$
+
+For example, with the Knapsack Problem, we can start with an empty set.
+
+\begin{definition}[Markov Chain]
+   A Markov Chain over $\Omega$ is a sequence of random variables $X_0, X_1, X_2, ...$ such that:
+   \begin{enumerate}
+      \item $\forall t, X_t$ takes values in $\Omega$.
+      \item $\forall x_0, x_1, ..., x_{t+1} \in \Omega: Pr[X_{t+1} = x_{t+1}|X_0 = x_0, X_1 = x_1, ..., X_t = x_t] = Pr[X_{t+1} = x_{t+1}|X_t = x_t]$ \\
+      Informally: next move only depends on current state, not past history.
+      \item $Pr[X_{t+1} = y|X_t = x] = M(x, y)$ is independent of $t$.
+   \end{enumerate}
+\end{definition}
+
+This allows us to formulate an $|\Omega| \times |\Omega|$ transition matrix $M$.
+
+\section{Examples}
+
+\subsection{Card Shuffling}
+
+$\Omega$ = all possible ordering of the cards (i.e., $|\Omega| = 52!$)
+
+\subsection{Finite State Machine}
+
+$\Omega = \{0, 1, 2\}$
+
+Suppose we start from state 0. Let us track how the probability of being at each state evolves as $t$ advances and transitions take place. We eventually find that the probability of being at each state converges to $\frac{1}{3}$. This is called a stationary distribution because the resulting probability values are no longer changed by application of the transition probabilities.
+
+\section{Stationary Distributions}
+
+\begin{definition}[Stationary Distribution]
+   $\pi$ is a stationary distribution if
+   $$
+   \forall y \in \Omega, \pi(y) = \sum_{x \in \Omega} \pi(x) \cdot M(x, y)
+   $$
+\end{definition}
+
+Question: As $t \rightarrow \infty$, does the distribution of $X_t$ always converge to a stationary distribution?
+
+The answer is no. For instance, consider a 2-state system that always transitions to the other state with probability 1. In this case, no convergence is ever achieved as $t \rightarrow \infty$.
+
+\begin{definition}[Regular]
+   A Markov Chain is regular if $\exists$ $T_0 > 0$ such that for any two states $x$ and $y$, there is a path of length $T_0$ from $x$ to $y$.
+\end{definition}
+
+\begin{theorem}
+   A finite regular Markov Chain has a unique stationary distribution $\pi$ that it converges to if
+   $$
+   \forall x \in \Omega, \lim_{t \rightarrow \infty} Pr[X_t = x] = \pi(x)
+   $$
+\end{theorem}
+
+All Markov Chains have stationary distributions, but not all converge to it.
+
+\begin{lemma}
+   $\pi$ is a stationary distribution if it satisfies the ``detailed balance'' equation:
+   $$
+   \forall x,y: \pi(x) \cdot M(x, y) = \pi(y) \cdot M(y, x)
+   $$
+\end{lemma}
+
+\begin{corollary}
+   A Markov Chain has uniform stationary distribution if $M(x, y) = M(y, x)$ $\forall x, y$.
+\end{corollary}
+
+\section{Example: Knapsack Problem $KP(L)$}
+
+\begin{itemize}
+   \item Weights: $w_1,w_2, ..., w_n$
+   \item Limit: $L$
+   \item $\Omega$ = Solutions to KP(L)
+   \item $X_0 = \emptyset$
+\end{itemize}
+
+At step $t$, choose $i \in [n]$ uniformly at random.
+
+$$
+X_{t+1} = \begin{cases}
+   X_t \setminus \{i\} & \text{if } i \in X_t \\
+   X_t \cup \{i\} & \text{if } i \notin X_t \text{ and } \sum_{k \in X_t \cup \{i\}} w_k \leq L\\
+   X_t & \text{otherwise}
+\end{cases}
+$$
+
+This Markov Chain is regular and its transition probabilities from state $S$ to any adjacent state $S'$ and vice versa are the same at $M(S, S') = M(S', S) = \frac{1}{n}$. By corollary, the Markov Chain converges to a uniform stationary distribution. Hence, it is possible to sample uniformly from the population of KP(L) solutions using the MCMC method.
+
+\subsection{Metropolis-Hastings}
+
+Recall the Bayesian inference setup: want to generate samples from P where $P(x) \propto f(x), f: \Omega \rightarrow \mathbb{R}^{\geq 0}$
+
+Suppose you have a regular Markov Chain on $\Omega$ with transition matrix $M$.
+
+Metropolis-Hastings Markov Chain transitions:
+
+\begin{enumerate}
+   \item Pick $Y$ with probability $M(X_t, Y)$.
+   \item Set $\alpha = \min\{ 1, \frac{P(Y) \cdot M(Y, X_t)}{P(X_t) \cdot M(X_t, Y)} \}$, using $\frac{P(Y)}{P(X)} = \frac{f(Y)}{f(X)}$
+   \item With probability $\alpha$, $X_{t+1} \leftarrow Y$ and with probability $1 - \alpha$, $X_{t+1} \leftarrow X_t$.
+\end{enumerate}
+
+Think of $f(x)$ as a score that determine how desirable it is to be in state $x$.
+
+It is claimed that the Metropolis-Hastings Markov Chain has a stationary distribution equivalent to $P$, and the proof of this is left as an exercise.
+
+\section*{References}
+\beginrefs
+\bibentry{AGM97}{\sc N.~Alon}, {\sc Z.~Galil} and {\sc O.~Margalit},
+On the Exponent of the All Pairs Shortest Path Problem,
+{\it Journal of Computer and System Sciences\/}~{\bf 54} (1997),
+pp.~255--262.
+
+\bibentry{F76}{\sc M. L. ~Fredman}, New Bounds on the Complexity of the 
+Shortest Path Problem, {\it SIAM Journal on Computing\/}~{\bf 5} (1976), 
+pp.~83-89.
+\endrefs
+
+
+\end{document}
+
+
+
+
+
