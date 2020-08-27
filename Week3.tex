@@ -101,13 +101,13 @@
 \begin{document}
 %FILL IN THE RIGHT INFO.
 %\lecture{**LECTURE-NUMBER**}{**DATE**}{**LECTURER**}{**SCRIBE**}
-\lecture{3}{Markov Chain Monte Carlo}{Arnab Bhattacharyya}{Chia Jiun Wei}
+\lecture{3}{Markov Chain Monte Carlo}{Arnab Bhattacharyya}{Jiun Wei, Changsheng, Yuchen, Shawn}
 %\footnotetext{These notes are partially based on those of Nigel Mansell.}
 
 % **** YOUR NOTES GO HERE:
 
-
-\section{Overview}
+% Scribe: Jiun Wei
+\section{Introduction}
 
 Recall that in the last lecture, we saw sampling applied to:
 
@@ -125,6 +125,8 @@ P(x) = \frac{f(x)}{Z}
 $$
 
 where $Z$ is unknown but $f(x)$ is known.
+
+\subsection{Markov Chain Monte Carlo}
 
 Both can be attacked by Markov Chain Monte Carlo (MCMC).
 
@@ -148,19 +150,19 @@ For example, with the Knapsack Problem, we can start with an empty set.
 
 This allows us to formulate an $|\Omega| \times |\Omega|$ transition matrix $M$.
 
-\section{Examples}
-
-\subsection{Card Shuffling}
+\subsection{Example: Card Shuffling}
 
 $\Omega$ = all possible ordering of the cards (i.e., $|\Omega| = 52!$)
 
-\subsection{Finite State Machine}
+
+% Scribe: Changsheng
+\section{Stationary Distributions}
+
+\subsection{Example: Finite State Machine}
 
 $\Omega = \{0, 1, 2\}$
 
 Suppose we start from state 0. Let us track how the probability of being at each state evolves as $t$ advances and transitions take place. We eventually find that the probability of being at each state converges to $\frac{1}{3}$. This is called a stationary distribution because the resulting probability values are no longer changed by application of the transition probabilities.
-
-\section{Stationary Distributions}
 
 \begin{definition}[Stationary Distribution]
    $\pi$ is a stationary distribution if
@@ -197,7 +199,8 @@ All Markov Chains have stationary distributions, but not all converge to it.
    A Markov Chain has uniform stationary distribution if $M(x, y) = M(y, x)$ $\forall x, y$.
 \end{corollary}
 
-\section{Example: Knapsack Problem $KP(L)$}
+% Scribe: Yuchen
+\section{Application to Knapsack Problem $KP(L)$}
 
 \begin{itemize}
    \item Weights: $w_1,w_2, ..., w_n$
@@ -218,7 +221,8 @@ $$
 
 This Markov Chain is regular and its transition probabilities from state $S$ to any adjacent state $S'$ and vice versa are the same at $M(S, S') = M(S', S) = \frac{1}{n}$. By corollary, the Markov Chain converges to a uniform stationary distribution. Hence, it is possible to sample uniformly from the population of KP(L) solutions using the MCMC method.
 
-\subsection{Metropolis-Hastings}
+% Scribe: Shawn
+\section{Metropolis-Hastings}
 
 Recall the Bayesian inference setup: want to generate samples from P where $P(x) \propto f(x), f: \Omega \rightarrow \mathbb{R}^{\geq 0}$
 
@@ -236,17 +240,17 @@ Think of $f(x)$ as a score that determine how desirable it is to be in state $x$
 
 It is claimed that the Metropolis-Hastings Markov Chain has a stationary distribution equivalent to $P$, and the proof of this is left as an exercise.
 
-\section*{References}
-\beginrefs
-\bibentry{AGM97}{\sc N.~Alon}, {\sc Z.~Galil} and {\sc O.~Margalit},
-On the Exponent of the All Pairs Shortest Path Problem,
-{\it Journal of Computer and System Sciences\/}~{\bf 54} (1997),
-pp.~255--262.
+% \section*{References}
+% \beginrefs
+% \bibentry{AGM97}{\sc N.~Alon}, {\sc Z.~Galil} and {\sc O.~Margalit},
+% On the Exponent of the All Pairs Shortest Path Problem,
+% {\it Journal of Computer and System Sciences\/}~{\bf 54} (1997),
+% pp.~255--262.
 
-\bibentry{F76}{\sc M. L. ~Fredman}, New Bounds on the Complexity of the 
-Shortest Path Problem, {\it SIAM Journal on Computing\/}~{\bf 5} (1976), 
-pp.~83-89.
-\endrefs
+% \bibentry{F76}{\sc M. L. ~Fredman}, New Bounds on the Complexity of the 
+% Shortest Path Problem, {\it SIAM Journal on Computing\/}~{\bf 5} (1976), 
+% pp.~83-89.
+% \endrefs
 
 
 \end{document}
