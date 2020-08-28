@@ -116,39 +116,37 @@ Recall that in the last lecture, we saw sampling applied to:
    \item Bayesian Inference
 \end{enumerate}
 
-For approximate counting, we wanted to uniformly sample from solutions to a computational problem (e.g., solutions to a Knapsack Problem).
+For approximate counting, we wanted to uniformly sample from the space of valid solutions to a computational problem (e.g., the 0-1 Knapsack Problem).
 
-For Bayesian inference, the posterior distribution often has a denominator that is difficult to calculate, so we wanted to sample from a distribution $P$ such that:
-
-$$
+For Bayesian inference, we wanted to sample from a posterior distribution $P$ such that:
+\[
 P(x) = \frac{f(x)}{Z}
-$$
-
-where $Z$ is unknown but $f(x)$ is known.
+\]
+where $f(x)$ is known but $Z$ is unknown.
 
 \subsection{Markov Chain Monte Carlo}
 
-Both can be attacked by Markov Chain Monte Carlo (MCMC).
+Both sampling tasks can be accomplished using a method called Markov Chain Monte Carlo (MCMC).
 
-$P$: Target distribution over $\Omega$.
+Suppose \(P\) is the target distribution that we wish to sample from over $\Omega$, the universe of all possible states.
 
-The idea is that we start from a point that is known state $X_0$ in $\Omega$ and make random transitions to $X_2, X_3$ and so on. After each transition, 
+The main idea is that we start from a known state $X_0$ at $t = 0$ in $\Omega$ and make random transitions to $X_1$ at $t = 1$, $X_2$ at $t = 2$, $X_3$ at $t = 3$ and so on. Each transition to the next state is also based solely on the current state and not on the previous states that came before.
 
-We want that for large $t$, $P[X_t = x] \approx P(x)$
+For MCMC, we want that for large $t$, $Pr[X_t = x] \approx P(x)$.
 
-For example, with the Knapsack Problem, we can start with an empty set.
+Assuming certain conditions are met, the sequence of $X_0, X_1, X_2$ and so on is called a Markov Chain.
 
 \begin{definition}[Markov Chain]
    A Markov Chain over $\Omega$ is a sequence of random variables $X_0, X_1, X_2, ...$ such that:
    \begin{enumerate}
       \item $\forall t, X_t$ takes values in $\Omega$.
       \item $\forall x_0, x_1, ..., x_{t+1} \in \Omega: Pr[X_{t+1} = x_{t+1}|X_0 = x_0, X_1 = x_1, ..., X_t = x_t] = Pr[X_{t+1} = x_{t+1}|X_t = x_t]$ \\
-      Informally: next move only depends on current state, not past history.
+      (Informally: the next move only depends on current state, not past history.)
       \item $Pr[X_{t+1} = y|X_t = x] = M(x, y)$ is independent of $t$.
    \end{enumerate}
 \end{definition}
 
-This allows us to formulate an $|\Omega| \times |\Omega|$ transition matrix $M$.
+The last point also allows us to formulate an $|\Omega| \times |\Omega|$ transition matrix $M$.
 
 \subsection{Example: Card Shuffling}
 
