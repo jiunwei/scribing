@@ -193,6 +193,15 @@ All Markov Chains have stationary distributions, but not all converge to it.
    $$
 \end{lemma}
 
+\begin{proof}
+Suppose we have a Markov Chain with transition matrix $M$ and a distribution $\pi$ satisfying our hypothesis. Now consider the $j$th component of $\pi M:$
+
+$(\pi M)_j = \sum_{i \in \Omega} \pi_i M(i, j) = \sum_{i \in \Omega} \pi_j M(j, i) = \pi_j \sum_{i \in \Omega}M(j, i) = \pi_j$
+
+This implies that $\pi M$ = $\pi.$
+
+\end{proof}
+
 \begin{corollary}
    A Markov Chain has uniform stationary distribution if $M(x, y) = M(y, x)$ $\forall x, y$.
 \end{corollary}
@@ -222,11 +231,9 @@ This Markov Chain is regular and its transition probabilities from state $S$ to 
 % Scribe: Shawn
 \section{Metropolis-Hastings}
 
-Recall the Bayesian inference setup: want to generate samples from P where $P(x) \propto f(x), f: \Omega \rightarrow \mathbb{R}^{\geq 0}$
+Recall the Bayesian inference setup, where we want to generate samples from a distribution P, such that $P(x) = \frac{f(x)}{Z}, f: \Omega \rightarrow \mathbb{R}^{\geq 0}$. The function $f(x)$ can be thought of as a score that determines how desirable it is to be in state $x$, while $Z$ is some normalizing constant that is prohibitively expensive to compute. 
 
-Suppose you have a regular Markov Chain on $\Omega$ with transition matrix $M$.
-
-Metropolis-Hastings Markov Chain transitions:
+The Metropolis-Hastings algorithm allows us to design a Markov Chain with stationary distribution $P$, thus providing us with a method of sampling from $P$ without having to compute $Z$. Suppose you have a regular Markov Chain on $\Omega$ with transition matrix $M$. We define the Metropolis-Hastings Markov Chain transitions as follows:
 
 \begin{enumerate}
    \item Pick $Y$ with probability $M(X_t, Y)$.
@@ -234,9 +241,22 @@ Metropolis-Hastings Markov Chain transitions:
    \item With probability $\alpha$, $X_{t+1} \leftarrow Y$ and with probability $1 - \alpha$, $X_{t+1} \leftarrow X_t$.
 \end{enumerate}
 
-Think of $f(x)$ as a score that determine how desirable it is to be in state $x$.
+\begin{theorem}
+  The stationary distribution $\pi$ of the Metropolis-Hastings Markov Chain is $P$
+\end{theorem}
 
-It is claimed that the Metropolis-Hastings Markov Chain has a stationary distribution equivalent to $P$, and the proof of this is left as an exercise.
+\begin{proof}
+Let $M$ be the transition matrix of the original Markov chain, and let $Q$ be the transition matrix of the Metropolis-Hastings Markov chain. Then:
+
+\begin{equation*}
+\begin{split}
+P(i) \cdot Q(i,j)  & = P(i) \cdot M(i,j) \cdot \mbox{min}\{1, \frac{P(j) \cdot M(j,i)}{P(i) \cdot M(i,j)}\} = \mbox{min}\{P(i) \cdot M(i,j), P(j) \cdot M(j,i) \} \\
+& = P(j) \cdot M(j,i) \cdot \mbox{min}\{\frac{P(i) \cdot M(i,j)}{P(j) \cdot M(j,i)}, 1 \} = P(j) \cdot Q(j, i)
+\end{split}
+\end{equation*}
+
+By the balance lemma, $P$ is the stationary distribution with respect to $Q$
+\end{proof}
 
 % \section*{References}
 % \beginrefs
