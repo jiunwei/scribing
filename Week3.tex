@@ -422,11 +422,11 @@ X_{t+1} = \begin{cases}
 \end{cases}
 $$
 
-We can easily check that this is regular.Firstly, check that we can go from any state to any other state, i.e. a path should exist. Secondly, there's a self-loop transition somewhere, i.e. $X_{t+1}=X_t$ for some states. Otherwise, we never violate the weights constrains, which means that $\sum_{k \in X_t \cup \{i\}} w_k \leq L $ will always be true.
+We can easily check that this is regular. Firstly, check that we can go from any state to any other state, i.e. a path should exist. Secondly, there's a self-loop transition somewhere, i.e. $X_{t+1}=X_t$ for some states. Otherwise, we never violate the weights constrains, which means that $\sum_{k \in X_t \cup \{i\}} w_k \leq L $ will always be true.
 
 According to Corollary \ref{knapsack}, this Markov Chain's transition probabilities from state $S$ to any adjacent state $S'$ and vice versa are the same at $M(S, S') = M(S', S) = \frac{1}{n}$. And the Markov Chain converges to a uniform stationary distribution. Hence, it is possible to sample uniformly from the population of KP(L) solutions using the MCMC method.
 
-A question to think about(but won't be discussed in this class): The claimable convergence is $t \rightarrow \infty$, but we will only running the Markov Chain on a smaller number of sets. So how close do we get to the uniformly distribution?
+A question to think about (but won't be discussed in this class): The claimable convergence is $t \rightarrow \infty$, but we will only running the Markov Chain on a smaller number of sets. So how close do we get to the uniformly distribution?
 
 
 
