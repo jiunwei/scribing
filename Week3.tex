@@ -22,7 +22,6 @@
 \usetikzlibrary{arrows.meta}
 \usetikzlibrary{arrows, automata, positioning, through}
 
-
 \setlength{\oddsidemargin}{0.25 in}
 \setlength{\evensidemargin}{-0.25 in}
 \setlength{\topmargin}{-0.6 in}
@@ -44,7 +43,6 @@
 \renewcommand{\thefigure}{\thelecnum.\arabic{figure}}
 \renewcommand{\thetable}{\thelecnum.\arabic{table}}
 \renewcommand{\arraystretch}{2}
-
 %
 % The following macro is used to generate the header.
 %
@@ -125,45 +123,44 @@ Recall that in the last lecture, we saw sampling applied to:
    \item Bayesian Inference
 \end{enumerate}
 
-For approximate counting, we wanted to uniformly sample from solutions to a computational problem (e.g., solutions to a Knapsack Problem).
+For approximate counting, we wanted to uniformly sample from the space of valid solutions to a computational problem (e.g., the 0-1 Knapsack Problem).
 
-For Bayesian inference, the posterior distribution often has a denominator that is difficult to calculate, so we wanted to sample from a distribution $P$ such that:
-
-$$
+For Bayesian inference, we wanted to sample from a posterior distribution $P$ such that:
+\[
 P(x) = \frac{f(x)}{Z}
-$$
-
-where $Z$ is unknown but $f(x)$ is known.
+\]
+where $f(x)$ is known but $Z$ is unknown.
 
 \subsection{Markov Chain Monte Carlo}
 
-Both can be attacked by Markov Chain Monte Carlo (MCMC).
+Both sampling tasks can be accomplished using a method called Markov Chain Monte Carlo (MCMC).
 
-$P$: Target distribution over $\Omega$.
+Suppose \(P\) is the target distribution that we wish to sample from over $\Omega$, the universe of all possible states.
 
-The idea is that we start from a point that is known state $X_0$ in $\Omega$ and make random transitions to $X_2, X_3$ and so on. After each transition, 
+The main idea is that we start from a known state $X_0$ at $t = 0$ in $\Omega$ and make random transitions to $X_1$ at $t = 1$, $X_2$ at $t = 2$, $X_3$ at $t = 3$ and so on. Each transition to the next state is also based solely on the current state and not on the previous states that came before.
 
-We want that for large $t$, $P[X_t = x] \approx P(x)$
+For MCMC, we want that for large $t$, $Pr[X_t = x] \approx P(x)$.
 
-For example, with the Knapsack Problem, we can start with an empty set.
+Assuming certain conditions are met, the sequence of $X_0, X_1, X_2$ and so on is called a Markov Chain.
 
 \begin{definition}[Markov Chain]
    A Markov Chain over $\Omega$ is a sequence of random variables $X_0, X_1, X_2, ...$ such that:
    \begin{enumerate}
       \item $\forall t, X_t$ takes values in $\Omega$.
       \item $\forall x_0, x_1, ..., x_{t+1} \in \Omega: Pr[X_{t+1} = x_{t+1}|X_0 = x_0, X_1 = x_1, ..., X_t = x_t] = Pr[X_{t+1} = x_{t+1}|X_t = x_t]$ \\
-      Informally: next move only depends on current state, not past history.
+      (Informally: the next move only depends on current state, not past history.)
       \item $Pr[X_{t+1} = y|X_t = x] = M(x, y)$ is independent of $t$.
    \end{enumerate}
 \end{definition}
 
-This allows us to formulate an $|\Omega| \times |\Omega|$ transition matrix $M$.
+The last point also allows us to formulate an $|\Omega| \times |\Omega|$ transition matrix $M$.
 
 \subsection{Example: Card Shuffling}
 
 $\Omega$ = all possible ordering of the cards (i.e., $|\Omega| = 52!$)
 
 
+% Scribe: Changsheng
 % Scribe: Changsheng
 \section{Stationary Distributions}
 
@@ -398,8 +395,13 @@ All Markov Chains have stationary distributions, but not all converge to it.
    A Markov Chain has uniform stationary distribution if $M(x, y) = M(y, x)$ $\forall x, y$.
 \end{corollary}
 
+
+
+
+
+
 % Scribe: Yuchen
-\section{Application to Knapsac k Problem $KP(L)$}
+\section{Application to Knapsack Problem $KP(L)$}
 
 \begin{itemize}
    \item Weights: $w_1,w_2, ..., w_n$
@@ -407,6 +409,8 @@ All Markov Chains have stationary distributions, but not all converge to it.
    \item $\Omega$ = Solutions to KP(L)
    \item $X_0 = \emptyset$
 \end{itemize}
+
+And then we define the transition from t. Suppose we have $X_t$, and here is how we generate $X_{t+1}$.  
 
 At step $t$, choose $i \in [n]$ uniformly at random.
 
@@ -418,16 +422,23 @@ X_{t+1} = \begin{cases}
 \end{cases}
 $$
 
-This Markov Chain is regular and its transition probabilities from state $S$ to any adjacent state $S'$ and vice versa are the same at $M(S, S') = M(S', S) = \frac{1}{n}$. By corollary, the Markov Chain converges to a uniform stationary distribution. Hence, it is possible to sample uniformly from the population of KP(L) solutions using the MCMC method.
+We can easily check that this is regular.Firstly, check that we can go from any state to any other state, i.e. a path should exist. Secondly, there's a self-loop transition somewhere, i.e. $X_{t+1}=X_t$ for some states. Otherwise, we never violate the weights constrains, which means that $\sum_{k \in X_t \cup \{i\}} w_k \leq L $ will always be true.
+
+According to Corollary \ref{knapsack}, this Markov Chain's transition probabilities from state $S$ to any adjacent state $S'$ and vice versa are the same at $M(S, S') = M(S', S) = \frac{1}{n}$. And the Markov Chain converges to a uniform stationary distribution. Hence, it is possible to sample uniformly from the population of KP(L) solutions using the MCMC method.
+
+A question to think about(but won't be discussed in this class): The claimable convergence is $t \rightarrow \infty$, but we will only running the Markov Chain on a smaller number of sets. So how close do we get to the uniformly distribution?
+
+
+
+
+
 
 % Scribe: Shawn
 \section{Metropolis-Hastings}
 
-Recall the Bayesian inference setup: want to generate samples from P where $P(x) \propto f(x), f: \Omega \rightarrow \mathbb{R}^{\geq 0}$
+Recall the Bayesian inference setup, where we want to generate samples from a distribution P, such that $P(x) = \frac{f(x)}{Z}, f: \Omega \rightarrow \mathbb{R}^{\geq 0}$. The function $f(x)$ can be thought of as a score that determines how desirable it is to be in state $x$, while $Z$ is some normalizing constant that is prohibitively expensive to compute. 
 
-Suppose you have a regular Markov Chain on $\Omega$ with transition matrix $M$.
-
-Metropolis-Hastings Markov Chain transitions:
+The Metropolis-Hastings algorithm allows us to design a Markov Chain with stationary distribution $P$, thus providing us with a method of sampling from $P$ without having to compute $Z$. Suppose you have a regular Markov Chain on $\Omega$ with transition matrix $M$. We define the Metropolis-Hastings Markov Chain transitions as follows:
 
 \begin{enumerate}
    \item Pick $Y$ with probability $M(X_t, Y)$.
@@ -435,9 +446,22 @@ Metropolis-Hastings Markov Chain transitions:
    \item With probability $\alpha$, $X_{t+1} \leftarrow Y$ and with probability $1 - \alpha$, $X_{t+1} \leftarrow X_t$.
 \end{enumerate}
 
-Think of $f(x)$ as a score that determine how desirable it is to be in state $x$.
+\begin{theorem}
+  The stationary distribution $\pi$ of the Metropolis-Hastings Markov Chain is $P$
+\end{theorem}
 
-It is claimed that the Metropolis-Hastings Markov Chain has a stationary distribution equivalent to $P$, and the proof of this is left as an exercise.
+\begin{proof}
+Let $M$ be the transition matrix of the original Markov chain, and let $Q$ be the transition matrix of the Metropolis-Hastings Markov chain. Then:
+
+\begin{equation*}
+\begin{split}
+P(i) \cdot Q(i,j)  & = P(i) \cdot M(i,j) \cdot \mbox{min}\{1, \frac{P(j) \cdot M(j,i)}{P(i) \cdot M(i,j)}\} = \mbox{min}\{P(i) \cdot M(i,j), P(j) \cdot M(j,i) \} \\
+& = P(j) \cdot M(j,i) \cdot \mbox{min}\{\frac{P(i) \cdot M(i,j)}{P(j) \cdot M(j,i)}, 1 \} = P(j) \cdot Q(j, i)
+\end{split}
+\end{equation*}
+
+By the balance lemma, $P$ is the stationary distribution with respect to $Q$
+\end{proof}
 
 % \section*{References}
 % \beginrefs
@@ -453,7 +477,6 @@ It is claimed that the Metropolis-Hastings Markov Chain has a stationary distrib
 
 
 \end{document}
-
 
 
 
