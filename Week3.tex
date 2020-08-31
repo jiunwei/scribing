@@ -15,6 +15,13 @@
 \usepackage{graphics}
 \usepackage{amsmath}
 \usepackage{amsfonts}
+\usepackage[utf8]{inputenc}
+\usepackage{tikz}
+\usepackage[tight,footnotesize]{subfigure}
+
+\usetikzlibrary{arrows.meta}
+\usetikzlibrary{arrows, automata, positioning, through}
+
 \setlength{\oddsidemargin}{0.25 in}
 \setlength{\evensidemargin}{-0.25 in}
 \setlength{\topmargin}{-0.6 in}
@@ -35,7 +42,7 @@
 \renewcommand{\theequation}{\thelecnum.\arabic{equation}}
 \renewcommand{\thefigure}{\thelecnum.\arabic{figure}}
 \renewcommand{\thetable}{\thelecnum.\arabic{table}}
-
+\renewcommand{\arraystretch}{2}
 %
 % The following macro is used to generate the header.
 %
@@ -154,13 +161,180 @@ We can think of multiple card shufflings as a Markov Chain where each permutatio
 
 
 % Scribe: Changsheng
+% Scribe: Changsheng
 \section{Stationary Distributions}
 
 \subsection{Example: Finite State Machine}
+Markov chains can be represented by finite state machines. The idea is that a Markov chain describes a process in which the transition to a state at time $t+1$ depends only on the state at time $t$. The main thing to keep in mind is that the transitions in a Markov chain are probabilistic rather than deterministic, which means that you can't always say with perfect certainty what will happen at time $t+1$.
 
-$\Omega = \{0, 1, 2\}$
+This Markov Chain usually shown by a \textbf{state transition diagram}. Consider a Markov chain with three possible states $0, 1$ and $2$, i.e. $\Omega = \{0,1,2\}$ and the following transition probabilities.
 
-Suppose we start from state 0. Let us track how the probability of being at each state evolves as $t$ advances and transitions take place. We eventually find that the probability of being at each state converges to $\frac{1}{3}$. This is called a stationary distribution because the resulting probability values are no longer changed by application of the transition probabilities.
+\begin{equation}\mathbf{P}_r=\left[\begin{array}{ccc}
+\frac{1}{2} & \frac{1}{4} & \frac{1}{4} \\
+\frac{1}{4} & \frac{1}{2} & \frac{1}{4} \\
+\frac{1}{4} & \frac{1}{4} & \frac{1}{2}
+\end{array}\right]\end{equation}
+
+the state transition diagram can be drawn as,
+
+\begin{figure}[!htp]
+	\centering
+		\label{fig:fs_machine}
+		\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=4cm,
+                thick,main node/.style={circle,draw,font=\Large\bfseries}]
+
+        \node[main node] (0) {0};
+        \node[main node] (1) [below left of=0] {1};
+        \node[main node] (2) [below right of=0] {2};
+
+          \path
+            (0) edge    [loop above]    node            {$\frac{1}{2}$} (0)
+                edge                    node            {$\frac{1}{4}$} (1)
+                edge    [bend left]     node            {$\frac{1}{4}$} (2)
+            (1) edge    [loop below]    node            {$\frac{1}{2}$} (1)
+            	edge    [bend left]     node            {$\frac{1}{4}$} (0)
+                edge    [bend right]    node            {$\frac{1}{4}$} (2)
+            (2) edge    [loop below]    node            {$\frac{1}{2}$} (2)
+                edge                    node    [above] {$\frac{1}{4}$} (1)
+                edge                    node            {$\frac{1}{4}$} (0);
+\end{tikzpicture}
+	\caption{This graph shows an example of a finit state machine with 3 states. The edges denote the  transition probabilities.}
+\end{figure}
+
+
+\begin{figure}[!t]
+   \centering
+	\subfigure[$t=0$ \textbf{Initial State}]{
+		\label{fig:t0}
+		\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=2cm, thick,main node/.style={circle,draw,font=\bfseries}]
+
+        \node[main node] (0)                    {$1$};
+        \node[main node] (1) [below left of=0]  {$0$};
+        \node[main node] (2) [below right of=0] {$0$};
+
+          \path
+            (0) edge [loop above]   node                {}  (0)
+                edge                node                {}  (1)
+                edge [bend left]    node                {}  (2)
+            (1) edge [loop below]   node                {}  (1)
+            	edge [bend left]    node                {}  (0)
+                edge [bend right]   node                {}  (2)
+            (2) edge [loop below]   node                {}  (2)
+                edge                node    [above]     {}  (1)
+                edge                node                {}  (0);
+        \end{tikzpicture}
+	}
+   \subfigure[$t=1$]{
+		\label{fig:t1}
+		\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=2cm, thick,main node/.style={circle,draw,font=\bfseries}]
+
+        \node[main node] (0)                    {$\frac{1}{2}$};
+        \node[main node] (1) [below left of=0]  {$\frac{1}{4}$};
+        \node[main node] (2) [below right of=0] {$\frac{1}{4}$};
+
+          \path
+            (0) edge [loop above]   node                {}  (0)
+                edge                node                {}  (1)
+                edge [bend left]    node                {}  (2)
+            (1) edge [loop below]   node                {}  (1)
+            	edge [bend left]    node                {}  (0)
+                edge [bend right]   node                {}  (2)
+            (2) edge [loop below]   node                {}  (2)
+                edge                node    [above]     {}  (1)
+                edge                node                {}  (0);
+        \end{tikzpicture}
+   }
+   \subfigure[$t=2$]{
+		\label{fig:t2}
+		\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=2cm, thick,main node/.style={circle,draw,font=\bfseries}]
+
+        \node[main node] (0)                    {$\frac{3}{8}$};
+        \node[main node] (1) [below left of=0]  {$\frac{5}{16}$};
+        \node[main node] (2) [below right of=0] {$\frac{5}{16}$};
+
+          \path
+            (0) edge [loop above]   node                {}  (0)
+                edge                node                {}  (1)
+                edge [bend left]    node                {}  (2)
+            (1) edge [loop below]   node                {}  (1)
+            	edge [bend left]    node                {}  (0)
+                edge [bend right]   node                {}  (2)
+            (2) edge [loop below]   node                {}  (2)
+                edge                node    [above]     {}  (1)
+                edge                node                {}  (0);
+        \end{tikzpicture}
+   }
+   \subfigure[$t=3 \rightarrow t=n$]{
+        \label{fig:t3}
+        
+		\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=2cm, thick,main node/.style={circle,draw,font=\bfseries}]    
+        \node[main node] (0)                    {$\frac{22}{64}$};
+        \node[main node] (1) [below left of=0]  {$\frac{21}{64}$};
+        \node[main node] (2) [below right of=0] {$\frac{21}{64}$};
+
+          \path
+            (0) edge [loop above]   node                {}  (0)
+                edge                node                {}  (1)
+                edge [bend left]    node                {}  (2)
+            (1) edge [loop below]   node                {}  (1)
+            	edge [bend left]    node                {}  (0)
+                edge [bend right]   node                {}  (2)
+            (2) edge [loop below]   node                {}  (2)
+                edge                node    [above]     {}  (1)
+                edge                node                {}  (0);
+        \end{tikzpicture}
+        
+        
+        \centering
+        $\cdots$
+        % \centering
+        % $\cdots$
+
+        \begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=2cm, thick,main node/.style={circle,draw,font=\bfseries}]
+
+            \node[main node] (0)                    {$\approx \frac{1}{3}$};
+            \node[main node] (1) [below left of=0]  {$\approx \frac{1}{3}$};
+            \node[main node] (2) [below right of=0] {$\approx \frac{1}{3}$};
+    
+              \path
+                (0) edge [loop above]   node                {}  (0)
+                    edge                node                {}  (1)
+                    edge [bend left]    node                {}  (2)
+                (1) edge [loop below]   node                {}  (1)
+                    edge [bend left]    node                {}  (0)
+                    edge [bend right]   node                {}  (2)
+                (2) edge [loop below]   node                {}  (2)
+                    edge                node    [above]     {}  (1)
+                    edge                node                {}  (0);
+            \end{tikzpicture}
+   }
+   \subfigure[\textbf{Stationary}]{
+		\label{fig:stationary}
+		\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=2cm, thick,main node/.style={circle,draw,font=\bfseries}]
+
+        \node[main node] (0)                    {$\frac{1}{3}$};
+        \node[main node] (1) [below left of=0]  {$\frac{1}{3}$};
+        \node[main node] (2) [below right of=0] {$\frac{1}{3}$};
+
+          \path
+            (0) edge [loop above]   node                {}  (0)
+                edge                node                {}  (1)
+                edge [bend left]    node                {}  (2)
+            (1) edge [loop below]   node                {}  (1)
+            	edge [bend left]    node                {}  (0)
+                edge [bend right]   node                {}  (2)
+            (2) edge [loop below]   node                {}  (2)
+                edge                node    [above]     {}  (1)
+                edge                node                {}  (0);
+        \end{tikzpicture}
+   }
+
+	\caption{Above shows an example of the diffusion process of the above mentioned finite state machine. Suppose we start from state 0. In Figure \ref{fig:t0}, node $0$ has an initial probability value $1$ node $1$ and node $2$ have the initail value of $0$, and in the next state, e.g. we can compute the value of node $0$ by $\frac{1}{2} = \frac{1}{2} \cdot 1 + \frac{1}{4} \cdot 0 + \frac{1}{4} \cdot 0$. We can find that, with the $t$ advances and transition take place, the probability values of being at each state of all nodes start to converge to $\frac{1}{3}$ }
+	\label{fig:s2tAndt2t}
+\end{figure}
+
+
+ We eventually find that the probability of being at each state converges to $\frac{1}{3}$. This is called a \textbf{Stationary Distribution} because the resulting probability values are no longer changed by application of the transition probabilities.
 
 \begin{definition}[Stationary Distribution]
    $\pi$ is a stationary distribution if
@@ -169,12 +343,34 @@ Suppose we start from state 0. Let us track how the probability of being at each
    $$
 \end{definition}
 
-Question: As $t \rightarrow \infty$, does the distribution of $X_t$ always converge to a stationary distribution?
+\textbf{Question:} As $t \rightarrow \infty$, does the distribution of $X_t$ always converge to a stationary distribution?
+\begin{figure}[!htp]
+	\centering
+		\label{fig:fs_machine}
+		\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=4cm,
+                thick,main node/.style={circle,draw,font=\Large\bfseries}]
+
+        \node[main node] (0) {A};
+        \node[main node] (1) [right of=0] {B};
+
+          \path
+            (0)
+                edge     [bend left]               node            {$1$} (1)
+                
+            (1)
+            	edge    [bend left]     node            {$1$} (0);
+                
+\end{tikzpicture}
+    \caption{An example of a 2-state system. In this system, $\pi = [\frac{1}{2} \ \frac{1}{2}]$ is stationary.}
+\end{figure}
 
 The answer is no. For instance, consider a 2-state system that always transitions to the other state with probability 1. In this case, no convergence is ever achieved as $t \rightarrow \infty$.
 
 \begin{definition}[Regular]
-   A Markov Chain is regular if $\exists$ $T_0 > 0$ such that for any two states $x$ and $y$, there is a path of length $T_0$ from $x$ to $y$.
+   
+
+A Markov Chain is \textbf{regular} if $\exists$ $T_0 > 0$ such that for any two states $x$ and $y$, there is a path of length $T_0$ from $x$ to $y$.
+
 \end{definition}
 
 \begin{theorem}
@@ -186,6 +382,8 @@ The answer is no. For instance, consider a 2-state system that always transition
 
 All Markov Chains have stationary distributions, but not all converge to it.
 
+\textbf{MCMC Strategy:}  Design a Markov chain whose stationary distribution is the one you want to sample from.
+
 \begin{lemma}
    $\pi$ is a stationary distribution if it satisfies the ``detailed balance'' equation:
    $$
@@ -193,19 +391,14 @@ All Markov Chains have stationary distributions, but not all converge to it.
    $$
 \end{lemma}
 
-\begin{proof}
-Suppose we have a Markov Chain with transition matrix $M$ and a distribution $\pi$ satisfying our hypothesis. Now consider the $j$th component of $\pi M:$
-
-$(\pi M)_j = \sum_{i \in \Omega} \pi_i M(i, j) = \sum_{i \in \Omega} \pi_j M(j, i) = \pi_j \sum_{i \in \Omega}M(j, i) = \pi_j$
-
-This implies that $\pi M$ = $\pi.$
-
-\end{proof}
-
 \begin{corollary}
-\label{knapsack}
    A Markov Chain has uniform stationary distribution if $M(x, y) = M(y, x)$ $\forall x, y$.
 \end{corollary}
+
+
+
+
+
 
 % Scribe: Yuchen
 \section{Application to Knapsack Problem $KP(L)$}
@@ -234,6 +427,11 @@ We can easily check that this is regular.Firstly, check that we can go from any 
 According to Corollary \ref{knapsack}, this Markov Chain's transition probabilities from state $S$ to any adjacent state $S'$ and vice versa are the same at $M(S, S') = M(S', S) = \frac{1}{n}$. And the Markov Chain converges to a uniform stationary distribution. Hence, it is possible to sample uniformly from the population of KP(L) solutions using the MCMC method.
 
 A question to think about(but won't be discussed in this class): The claimable convergence is $t \rightarrow \infty$, but we will only running the Markov Chain on a smaller number of sets. So how close do we get to the uniformly distribution?
+
+
+
+
+
 
 % Scribe: Shawn
 \section{Metropolis-Hastings}
@@ -279,8 +477,6 @@ By the balance lemma, $P$ is the stationary distribution with respect to $Q$
 
 
 \end{document}
-
-
 
 
 
