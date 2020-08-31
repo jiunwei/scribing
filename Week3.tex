@@ -391,6 +391,14 @@ All Markov Chains have stationary distributions, but not all converge to it.
    $$
 \end{lemma}
 
+\begin{proof}
+Suppose we have a Markov Chain with transition matrix $M$ and a distribution $\pi$ satisfying our hypothesis. Now consider the $j$th component of $\pi M$:
+
+$(\pi M)_j = \sum_{i \in \Omega} \pi_i M(i,j) = \sum_{i \in \Omega} \pi_j M(j, i) = \pi_j \sum_{i \in \Omega} M(j, i) = \pi_j$
+
+This implies that $\pi M = \pi$.
+\end{proof}
+
 \begin{corollary}
 \label{knapsack}
    A Markov Chain has uniform stationary distribution if $M(x, y) = M(y, x)$ $\forall x, y$.
@@ -461,7 +469,7 @@ P(i) \cdot Q(i,j)  & = P(i) \cdot M(i,j) \cdot \mbox{min}\{1, \frac{P(j) \cdot M
 \end{split}
 \end{equation*}
 
-By the balance lemma, $P$ is the stationary distribution with respect to $Q$
+By the detailed balance lemma, $P$ is the stationary distribution with respect to $Q$
 \end{proof}
 
 % \section*{References}
